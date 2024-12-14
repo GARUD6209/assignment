@@ -1,0 +1,10 @@
+services:
+  assignment:
+    image: garud6209/assignment:latest
+    container_name: assignment
+    ports:
+      - "8080:8080"
+
+
+
+
