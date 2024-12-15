@@ -1,5 +1,6 @@
 package com.harsh.assignment.constant;
 
+
 import lombok.Getter;
 
 @Getter
@@ -7,9 +8,12 @@ public enum ErrorCodeEnum {
     
 	GENERIC_ERROR("2000","Unable To Process, try later"),
 	USER_ALDEADY_EXIST("20001", "Invalid Request, User already exist."),
-	TXN_STATUS_HANDLER_NOT_CONFIGURED("20002", "StatusHandler not configured, Try again later."),
-	DUPLICATE_TXN_REF("20003", "Invalid txnRefernce, Duplicate key");
-	
+	HEADER_IS_NULL("20003", "Authorization header is missing"),
+	JWT_IS_NULL("2004","jwt was null."), 
+	INVALID_JWT_TOKEN("2005","Invalid jwt token"),
+	JWT_TOKEN_EXPIRE("2006","jwt token expired."),
+	UNSUPPORTED_JWT("2007","jwt token unsupported."),
+	USER_NOT_FOUND("2008","user not found." );
 
 	private String errorCode;
 	private String errorMessage;
@@ -17,6 +21,14 @@ public enum ErrorCodeEnum {
 	ErrorCodeEnum(String errorCode, String errorMessage) {
 		 this.errorCode = errorCode;
 	     this.errorMessage = errorMessage;
+	}
+
+	public String getErrorCode() {
+		return errorCode;
+	}
+
+	public String getErrorMessage() {
+		return errorMessage;
 	}
 
 	public static ErrorCodeEnum fromErrorCode(String errorCode) {
@@ -37,19 +49,4 @@ public enum ErrorCodeEnum {
 		throw new IllegalArgumentException("No matching enum constant for errorMessage: " + errorMessage);
 	}
 
-	public String getErrorCode() {
-		return errorCode;
-	}
-
-	public void setErrorCode(String errorCode) {
-		this.errorCode = errorCode;
-	}
-
-	public String getErrorMessage() {
-		return errorMessage;
-	}
-
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-	}
 }

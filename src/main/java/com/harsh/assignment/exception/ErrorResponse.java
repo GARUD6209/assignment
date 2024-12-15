@@ -3,25 +3,11 @@ package com.harsh.assignment.exception;
 import lombok.Data;
 
 
-
+@Data
 public class ErrorResponse {
-	
-	private String errorCode;
-	private String errorMessage;
 
-	public String getErrorCode() {
-		return errorCode;
-	}
+    private String errorCode;
+    private String errorMessage;
 
-	public void setErrorCode(String errorCode) {
-		this.errorCode = errorCode;
-	}
 
-	public String getErrorMessage() {
-		return errorMessage;
-	}
-
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-	}
 }

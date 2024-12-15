@@ -1,18 +1,22 @@
 package com.harsh.assignment.jwt;
 
 
+import com.harsh.assignment.constant.ErrorCodeEnum;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -31,7 +35,7 @@ public class JwtUtils {
 
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        logger.debug("Authorization Header: {}", bearerToken);
+
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
@@ -43,7 +47,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+Integer.parseInt(jwtExpirationMs)))
+                .expiration(new Date(System.currentTimeMillis() + Integer.parseInt(jwtExpirationMs)))
                 .signWith(key())
                 .compact();
     }
@@ -59,20 +63,18 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    public boolean validateJwtToken(String authToken) {
+    public boolean validateJwtToken(String authToken) throws ExpiredJwtException, SignatureException {
         try {
             logger.info("Validate : " + getUserNameFromJwtToken(authToken));
             Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(authToken);
             return true;
-        } catch (MalformedJwtException e) {
-            logger.error("Invalid JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            logger.error("JWT token is expired: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            logger.error("JWT token is unsupported: {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            logger.error("JWT claims string is empty: {}", e.getMessage());
+            logger.error("JWT token expired: {}", e.getMessage());
+            throw new ExpiredJwtException(null, null, ErrorCodeEnum.JWT_TOKEN_EXPIRE.getErrorMessage());
+        } catch (UnsupportedJwtException | MalformedJwtException | IllegalArgumentException e) {
+            logger.error("Invalid JWT token: {}", e.getMessage());
+            throw new SignatureException(ErrorCodeEnum.INVALID_JWT_TOKEN.getErrorMessage());
         }
-        return false;
+//return false;
     }
 }

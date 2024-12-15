@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -63,12 +64,13 @@ public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(@RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<SignupResponse> signup(@RequestBody SignupRequest signupRequest) throws Exception {
         // Check if user already exists
         if (((JdbcUserDetailsManager) userDetailsService).userExists(signupRequest.getUsername())) {
 
-            throw new AssignmentException(ErrorCodeEnum.USER_ALDEADY_EXIST.getErrorCode(),
-                    ErrorCodeEnum.USER_ALDEADY_EXIST.getErrorMessage(), HttpStatus.CONFLICT);
+            throw new  AssignmentException(ErrorCodeEnum.USER_ALDEADY_EXIST.getErrorCode(),
+         		   ErrorCodeEnum.USER_ALDEADY_EXIST.getErrorMessage(), 
+        		   HttpStatus.BAD_REQUEST);
         }
 
         SignupResponse save = authService.save(signupRequest);
@@ -87,7 +89,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication;
         try {
             authentication = authenticationManager
@@ -97,11 +99,7 @@ public class AuthController {
                             loginRequest.getPassword()));
             log.info("got to login try block");
         } catch (AuthenticationException exception) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("message", "Bad credentials");
-            map.put("status", false);
-            log.error("got to login catch block : " + exception.getMessage());
-            return new ResponseEntity<Object>(map, HttpStatus.NOT_FOUND);
+          throw new BadCredentialsException(ErrorCodeEnum.USER_NOT_FOUND.getErrorMessage());
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -119,7 +117,7 @@ public class AuthController {
                       userDetails.getUsername(),
                       roles );
 
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<LoginResponse>(response,HttpStatus.OK);
     }
 
 
