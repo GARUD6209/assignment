@@ -45,12 +45,17 @@ Ensure the following are installed:
    [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
 
 ---
+## Run in docker 
+  ```bash
+    docker compose up
+  ```
+   
 
 ## Default Credentials
 
 | **Property**      | **Value**           |
 |--------------------|---------------------|
-| JDBC URL          | `jdbc:h2:mem:testdb` |
+| JDBC URL          | `jdbc:h2:mem:test` |
 | Username          | `sa`                |
 | Password          | *(empty)*           |
 
